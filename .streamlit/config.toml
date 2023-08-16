@@ -1,3 +1,6 @@
 [server]
 maxUploadSize = 10
 runOnSave = true
+
+[ui]
+hideTopBar = true
