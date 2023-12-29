@@ -31,14 +31,9 @@ def send_bid(auction_name, team_name, bid_amount):
     return resp
 
 def bid(team_name):
+    st.subheader(f"Welcome {team_name},")
     bid_amount = st.number_input("Bid Amount", value=100, step=100, min_value=100, label_visibility="collapsed")
     bid_success = st.button("Bid", use_container_width=True, type="primary")
-
-    # FIXME: add button logic
-    co1, co2 = st.columns(2)
-    #co1.button("Exit bid", use_container_width=True)
-    co2.button("Refresh", use_container_width=True)
-
     if bid_success:
         resp = send_bid(auction_name, team_name, bid_amount)
         if resp is not None:
@@ -48,18 +43,27 @@ def bid(team_name):
     else:
         st.info("Press Bid button to enter")
 
+    co1, co2 = st.columns(2)
+    #co1.button("Exit bid", use_container_width=True)
+    #co2.button("Refresh", use_container_width=True)
+    if st.button("Reset", use_container_width=True):
+        del st.session_state['team_name']
+        st.rerun()
+
 # Login Check Screen
-# FIXME: add session state logic after login
-login_code = st.text_input("Enter code:")
-if login_code:
-    try:
-        # add 3 digit login code to enter
-        r_creds_folder = "auction:jpls5:creds:"
-        r_creds_key = r_creds_folder + login_code
-        r_creds_value = r.get(r_creds_key)
-        team_name = r_creds_value.decode('utf-8')
-        print(f"key obtained : {team_name}")
-        st.subheader(f"Welcome {team_name},")
-        bid(team_name)
-    except:
-        st.warning("Incorrect Code. Try again")
+if 'team_name' not in st.session_state:
+    login_code = st.text_input("Enter code:")
+    if login_code:
+        try:
+            creds_folder = "auction:jpls5:creds:"
+            creds_key = creds_folder + login_code
+            creds_value = r.get(creds_key)
+            st.session_state['team_name'] = creds_value.decode('utf-8')
+            print(f"key obtained : {st.session_state['team_name']}")
+            st.rerun()
+        except:
+            st.warning("Incorrect Code. Try again")
+    else:
+        st.warning("Enter Code to start bidding")
+else:
+    bid(st.session_state['team_name'])
