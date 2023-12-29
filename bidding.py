@@ -57,8 +57,8 @@ if login_code:
         r_creds_folder = "auction:jpls5:creds:"
         r_creds_key = r_creds_folder + login_code
         r_creds_value = r.get(r_creds_key)
-        print(f"key obtained {r_creds_value}")
         team_name = r_creds_value.decode('utf-8')
+        print(f"key obtained : {team_name}")
         st.subheader(f"Welcome {team_name},")
         bid(team_name)
     except:
