@@ -1,10 +1,25 @@
 import streamlit as st
 import pandas as pd
+import redis
+
+# streamlit
+st.set_page_config(
+    'Bidding Portal',
+    '🛎',
+    layout='centered',
+    initial_sidebar_state='collapsed',
+    menu_items={
+        "Get Help": "https://biddings.streamlit.app",
+        "About": "Bidding Portal",
+    },
+)
+
+r = redis.Redis(
+    host=st.secrets['redis']['host'],
+    port=st.secrets['redis']['port'],
+    password=st.secrets['redis']['password'])
 
 st.markdown("<h1 style='text-align: center; color: blue;'>Bidding Portal</h1>", unsafe_allow_html=True)
-# add 3 digit login code to enter
-team_list = pd.read_csv("./data/redis-team.csv")
-team_creds_list = team_list['Creds'].tolist()
 
 # Main Bidding Logic
 def bid(team_name):
@@ -31,8 +46,11 @@ def bid(team_name):
 login_code = st.text_input("Enter code:")
 if login_code:
     try:
-        team_index = team_creds_list.index(int(login_code))
-        team_name = team_list['Team'][team_index]
+        # add 3 digit login code to enter
+        r_creds_folder = "auction:jpls5:creds:"
+        r_creds_key = r_creds_folder + login_code
+        r_creds_value = r.get(r_creds_key)
+        team_name = r_creds_value.decode('utf-8')
         st.subheader(f"Welcome {team_name},")
         bid(team_name)
     except:
