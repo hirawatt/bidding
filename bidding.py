@@ -26,7 +26,7 @@ auction_name = "jpls5"
 def send_bid(auction_name, team_name, bid_amount):
     resp = r.xadd(
         f"auction:{auction_name}",
-        {"team": f"{team_name}", "bid": f"{bid_amount}"},
+        {"team": f"{team_name}", "bid": bid_amount},
     )
     return resp
 
@@ -43,6 +43,7 @@ def bid(team_name):
     else:
         st.info("Press Bid button to enter")
 
+    # FIXME: add exit & refresh logic
     co1, co2 = st.columns(2)
     #co1.button("Exit bid", use_container_width=True)
     #co2.button("Refresh", use_container_width=True)
@@ -61,8 +62,9 @@ if 'team_name' not in st.session_state:
             st.session_state['team_name'] = creds_value.decode('utf-8')
             print(f"key obtained : {st.session_state['team_name']}")
             st.rerun()
-        except:
+        except Exception as e:
             st.warning("Incorrect Code. Try again")
+            st.info(e)
     else:
         st.warning("Enter Code to start bidding")
 else:
